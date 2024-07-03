@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: geotwitter:1.0
+    ports:
+      - "90:5000"
+    restart: always
+    networks:
+      - webnet
+networks:
+  webnet:
