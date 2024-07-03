@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
     QMainWindow
 from PyQt5.QtCore import Qt
 
-from src.utils.Utils import is_valid_url, validate_bbox, valid_int
+from src.utils.Utils import is_valid_url, validate_bbox, valid_int, show_message_box
 from src.views.MainEsriWindow import QueryLayerThread
 
 
@@ -77,24 +77,25 @@ class MainGeoserverWindow(QMainWindow):
 
         if not self.layer_url_input.text() or not self.name_file_input.text() or not self.src_input.text() \
                 or not self.attr_id_input.text() or not self.type_name_input.text():
-            QMessageBox.warning(self, "Input Error", "Layer URL, Type Name, Attribute ID, Name File Input "
-                                                     "and SRC are required")
+            show_message_box(title="Input Error", message="Layer URL, Name File Input and Attribute ID are required",
+                             icon=QMessageBox.Critical)
             return
 
         if not is_valid_url(self.layer_url_input.text()):
-            QMessageBox.warning(self, "Input Error", "Layer URL is not valid")
+            show_message_box(title="URL Input Error", message="Layer URL, Name File Input and Attribute ID are required",
+                             icon=QMessageBox.Critical)
             return
 
         isInt, value_int, messageInt = valid_int(self.max_record_input.text())
 
         if not isInt:
-            QMessageBox.warning(self, "Input Error", messageInt)
+            show_message_box(title="Max Record Input Error", message=messageInt, icon=QMessageBox.Critical)
             return
 
         isBBOX, bbox, messageBbox = validate_bbox(self.xmin_input.text(), self.ymin_input.text(),
                                               self.xmax_input.text(), self.ymax_input.text())
         if not isBBOX:
-            QMessageBox.warning(self, messageBbox)
+            show_message_box(title="BBOX Error", message=messageBbox, icon=QMessageBox.Critical)
 
         layer_url = self.layer_url_input.text()
         bbox = (bbox[0], bbox[1], bbox[2], bbox[3], self.src_input.text())
@@ -120,11 +121,15 @@ class MainGeoserverWindow(QMainWindow):
     def query_layer_finished(self, json_path, excel_path, message=None):
         self.progress_dialog.close()
         if json_path and excel_path:
-            QMessageBox.information(self, "Query Completed", f"JSON saved at: {json_path}\n, Exist changes, "
-                                                             f"reporting saved at: {excel_path}")
+            show_message_box(title="Query Completed", message=f"JSON saved at: {json_path}\n, "
+                                                              f"Exist changes reporting saved at: {excel_path}",
+                             icon=QMessageBox.Information)
         elif json_path:
-            QMessageBox.information(self, "Query Completed", f"JSON saved at: {json_path}")
+            show_message_box(title="Query Completed", message=f"JSON saved at: {json_path}",
+                             icon=QMessageBox.Information)
         elif message:
-            QMessageBox.information(self, "Query Failed", f"{message}")
+            show_message_box(title="Query Failed", message=f"{message}", icon=QMessageBox.Critical)
+
         else:
-            QMessageBox.information(self, "Query Failed", "No files were saved.")
+            show_message_box(title="Query Alert", message="No files were saved.", icon=QMessageBox.Warning)
+

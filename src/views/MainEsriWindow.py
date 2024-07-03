@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QLabel, QLineEdit, QPushButton, QVBoxLa
 from arcgis.geometry import Envelope
 from PyQt5.QtCore import Qt
 
-from src.utils.Utils import is_valid_url, validate_bbox
+from src.utils.Utils import is_valid_url, validate_bbox, show_message_box
 from src.views.QueryThreadLayer import QueryLayerThread
 
 
@@ -12,10 +12,11 @@ class MainEsriWindow(QMainWindow):
         super().__init__()
 
         self.controller = controller
-        self.setWindowTitle("ExtractPyGeoServices")
+        self.setWindowTitle("PyExtractGeoServices")
 
         self.layer_url_label = QLabel("Layer URL:")
-        self.layer_url_input = QLineEdit("https://serviciosgis.ign.es/servicios/rest/services/Signa/Servicios_Industria/MapServer/23")
+        self.layer_url_input = QLineEdit(
+            "https://serviciosgis.ign.es/servicios/rest/services/Signa/Servicios_Industria/MapServer/23")
 
         self.where_label = QLabel("Where Clause:")
         self.where_input = QLineEdit("1=1")
@@ -78,17 +79,19 @@ class MainEsriWindow(QMainWindow):
     def query_layer(self):
 
         if not self.layer_url_input.text() or not self.name_file_input.text() or not self.attr_id_input.text():
-            QMessageBox.warning(self, "Input Error", "Layer URL, Name File Input and Attribute ID are required")
+            show_message_box(title="Input Error", message="Layer URL, Name File Input and Attribute ID are required",
+                             icon=QMessageBox.Critical)
             return
 
         if not is_valid_url(self.layer_url_input.text()):
-            QMessageBox.warning(self, "Input Error", "Layer URL is not valid")
+            show_message_box(title="Input Error", message="Layer URL is not valid", icon=QMessageBox.Critical)
             return
 
         isBBOX, bbox, message = validate_bbox(self.xmin_input.text(), self.ymin_input.text(),
                                               self.xmax_input.text(), self.ymax_input.text())
         if not isBBOX:
-            QMessageBox.warning(self, message)
+            show_message_box(title="BBOX Error", message=message, icon=QMessageBox.Critical)
+            return
 
         layer_url = self.layer_url_input.text()
         where_clause = self.where_input.text()
@@ -125,11 +128,14 @@ class MainEsriWindow(QMainWindow):
     def query_layer_finished(self, json_path, excel_path, message=None):
         self.progress_dialog.close()
         if json_path and excel_path:
-            QMessageBox.information(self, "Query Completed", f"JSON saved at: {json_path}\n, Exist changes, "
-                                                             f"reporting saved at: {excel_path}")
+            show_message_box(title="Query Completed", message=f"JSON saved at: {json_path}\n, "
+                                                              f"Exist changes reporting saved at: {excel_path}",
+                             icon=QMessageBox.Information)
         elif json_path:
-            QMessageBox.information(self, "Query Completed", f"JSON saved at: {json_path}")
+            show_message_box(title="Query Completed", message=f"JSON saved at: {json_path}",
+                             icon=QMessageBox.Information)
         elif message:
-            QMessageBox.information(self, "Query Failed", f"{message}")
+            show_message_box(title="Query Failed", message=f"{message}", icon=QMessageBox.Critical)
+
         else:
-            QMessageBox.information(self, "Query Failed", "No files were saved.")
+            show_message_box(title="Query Alert", message="No files were saved.", icon=QMessageBox.Warning)

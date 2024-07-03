@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.__controller = None
-        self.setWindowTitle("ExtractPyGeoServices")
+        self.setWindowTitle("PyExtractGeoServices")
 
         self.service_type_label = QLabel("Service Type:")
         self.service_type_input = QComboBox()

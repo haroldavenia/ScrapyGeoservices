@@ -3,7 +3,10 @@ import json
 import os
 import pandas as pd
 import pathlib
+import numpy as np
 from datetime import datetime
+
+from PyQt5.QtWidgets import QMessageBox
 
 FORMAT_TIME = "%Y%m%d_%H%M%S"
 
@@ -21,8 +24,10 @@ def is_valid_url(url):
 
 
 def validate_bbox(x_min, y_min, x_max, y_max):
-    if not (x_min and y_min and x_max and y_max):
+    if x_min == '' and y_min == '' and x_max == '' and y_max == '':
         return True, None, None
+    elif x_min == '' or y_min == '' or x_max == '' or y_max == '':
+        return False, None, "All bbox values must be empty."
     else:
         try:
             xmin = float(x_min)
@@ -119,9 +124,19 @@ def compare_features(df_old, df_new, attr_id):
     df_old.set_index(attr_id, inplace=True)
     df_new.set_index(attr_id, inplace=True)
 
+    # Fill NaN or None values with a specific value for comparison
+    df_old.fillna(value=np.nan, inplace=True)
+    df_new.fillna(value=np.nan, inplace=True)
+
+    # Convert NaN values to a string or specific value
+    df_old.replace(np.nan, 'MISSING', inplace=True)
+    df_new.replace(np.nan, 'MISSING', inplace=True)
+
     added_features = df_new[~df_new.index.isin(df_old.index)].copy()
     removed_features = df_old[~df_old.index.isin(df_new.index)].copy()
     common_columns = df_old.columns.intersection(df_new.columns)
+
+    # Perform the comparison with the replaced values
     modified_indices = df_new[df_new[common_columns].ne(df_old[common_columns]).any(axis=1)].index
     modified_features = df_new[df_new.index.isin(modified_indices) & df_new.index.isin(df_old.index)].copy()
     modified_features = modified_features[~modified_features.index.isin(added_features.index)]
@@ -131,3 +146,16 @@ def compare_features(df_old, df_new, attr_id):
 
 def get_format_time():
     return FORMAT_TIME
+
+
+def show_message_box(title, message, icon, buttons_ok_cancel=False, add_message=None):
+    msg = QMessageBox()
+    msg.setIcon(icon)
+    msg.setWindowTitle(title)
+    msg.setText(message)
+    if add_message:
+        msg.setInformativeText(add_message)
+    if buttons_ok_cancel:
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+    msg.exec_()
