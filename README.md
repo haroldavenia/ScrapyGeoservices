@@ -34,5 +34,13 @@ ScrapyGeoservices es una herramienta diseñada para interactuar con servicios de
 
 Para compilar el proyecto a un ejecutable (.exe), utiliza PyInstaller con el archivo de especificaciones:
 
-```sh
-pyinstaller main.spec
+   ```sh
+   pyinstaller main.spec
+   ```
+### Solventar errores en la compilación
+   ```sh
+   pip uninstall arcgis
+   pip uninstall pyinstaller
+   pip install arcgis
+   pip install pyinstaller
+   ```
