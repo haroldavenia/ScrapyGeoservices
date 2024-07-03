@@ -1,5 +1,6 @@
 import asyncio
 import json
+import threading
 import pandas as pd
 from arcgis.features import FeatureLayer
 from arcgis.geometry import filters
@@ -9,15 +10,14 @@ from src.utils.Utils import read_previous_json, read_features_from_json, compare
 class EsriRestService:
 
     def __init__(self, layer_url, attr_id):
-        self.__features = None
         self.__query_result = None
         self.__attr_id = attr_id
         self.__layer_url = "https://services.arcgis.com/example/arcgis/rest/services/LayerName/FeatureServer/0"
         self.__feature_layer = FeatureLayer(layer_url)
         self.__max_record_count = 1000
+        self.lock = threading.Lock()
 
     async def query_layer(self, where="1=1", out_fields="*", return_geometry=True, geometry=None):
-        self.__features = []
         object_ids_result = self.__feature_layer.query(
             where=where,
             return_ids_only=True,
@@ -37,18 +37,17 @@ class EsriRestService:
         await asyncio.gather(*tasks)
 
     async def query_subset(self, oid_subset, out_fields, return_geometry):
-        result = self.__feature_layer.query(
-            object_ids=','.join(map(str, oid_subset)),
-            out_fields=out_fields,
-            return_geometry=return_geometry
-        )
+        with self.lock:
+            result = self.__feature_layer.query(
+                object_ids=','.join(map(str, oid_subset)),
+                out_fields=out_fields,
+                return_geometry=return_geometry
+            )
 
-        if self.__query_result is None:
-            self.__query_result = result
-            self.__features = result.features
-        else:
-            self.__query_result.features.extend(result.features)
-            self.__features.extend(result.features)
+            if self.__query_result is None:
+                self.__query_result = result
+            else:
+                self.__query_result.features.extend(result.features)
 
     def get_feature_layer_df(self):
         data = json.loads(self.__query_result.to_json)
@@ -63,7 +62,7 @@ class EsriRestService:
 
     @property
     def features(self):
-        return self.__features
+        return self.__feature_layer.features
 
     @property
     def id(self):
@@ -78,4 +77,3 @@ class EsriRestService:
                 raise ValueError("Failed to convert query result to JSON.") from e
         else:
             raise ValueError("Query result has not data to save.")
-

@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
     QMainWindow
 from PyQt5.QtCore import Qt
 
-from src.utils.Utils import is_valid_url, validate_bbox
+from src.utils.Utils import is_valid_url, validate_bbox, valid_int
 from src.views.MainEsriWindow import QueryLayerThread
 
 
@@ -19,19 +19,19 @@ class MainGeoserverWindow(QMainWindow):
         self.type_name_input = QLineEdit("mc_inst_com_der_emision")
 
         self.attr_id_label = QLabel("Atrribute ID")
-        self.attr_id_input = QLineEdit("objectid")
+        self.attr_id_input = QLineEdit("id")
 
         self.xmin_label = QLabel("XMin:")
-        self.xmin_input = QLineEdit("-3.756324")
+        self.xmin_input = QLineEdit("-20.654297")
 
         self.ymin_label = QLabel("YMin:")
-        self.ymin_input = QLineEdit("40.382712")
+        self.ymin_input = QLineEdit("33.868169")
 
         self.xmax_label = QLabel("XMax:")
-        self.xmax_input = QLineEdit("-3.625947")
+        self.xmax_input = QLineEdit("12.722168")
 
         self.ymax_label = QLabel("YMax:")
-        self.ymax_input = QLineEdit("40.428136")
+        self.ymax_input = QLineEdit("45.566015")
 
         self.src_label = QLabel("SRC name:")
         self.src_input = QLineEdit("urn:ogc:def:crs:EPSG::4326")
@@ -85,17 +85,23 @@ class MainGeoserverWindow(QMainWindow):
             QMessageBox.warning(self, "Input Error", "Layer URL is not valid")
             return
 
-        isBBOX, bbox, message = validate_bbox(self.xmin_input.text(), self.ymin_input.text(),
+        isInt, value_int, messageInt = valid_int(self.max_record_input.text())
+
+        if not isInt:
+            QMessageBox.warning(self, "Input Error", messageInt)
+            return
+
+        isBBOX, bbox, messageBbox = validate_bbox(self.xmin_input.text(), self.ymin_input.text(),
                                               self.xmax_input.text(), self.ymax_input.text())
         if not isBBOX:
-            QMessageBox.warning(self, message)
+            QMessageBox.warning(self, messageBbox)
 
         layer_url = self.layer_url_input.text()
         bbox = (bbox[0], bbox[1], bbox[2], bbox[3], self.src_input.text())
         name_file = self.name_file_input.text()
         type_name = self.type_name_input.text()
         attr_id = self.attr_id_input.text()
-        max_record = self.max_record_input.text()
+        max_record = value_int
 
         self.progress_dialog = QProgressDialog("Querying layer...", "Cancel", 0, 100, self)
         self.progress_dialog.setWindowModality(Qt.WindowModal)

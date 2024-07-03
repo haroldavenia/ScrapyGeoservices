@@ -34,6 +34,14 @@ def validate_bbox(x_min, y_min, x_max, y_max):
             return False, None, "All bbox values must be valid float numbers."
 
 
+def valid_int(value):
+    try:
+        value_int = int(value)
+        return True, value_int, None
+    except ValueError:
+        return False, None, "All bbox values must be valid float numbers."
+
+
 def read_features_from_json(path_file):
     try:
         with open(path_file) as json_file:

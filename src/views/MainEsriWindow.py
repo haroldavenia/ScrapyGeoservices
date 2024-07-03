@@ -30,16 +30,16 @@ class MainEsriWindow(QMainWindow):
         self.attr_id_input = QLineEdit("objectid")
 
         self.xmin_label = QLabel("XMin:")
-        self.xmin_input = QLineEdit("-3.756324")
+        self.xmin_input = QLineEdit("-20.654297")
 
         self.ymin_label = QLabel("YMin:")
-        self.ymin_input = QLineEdit("40.382712")
+        self.ymin_input = QLineEdit("33.868169")
 
         self.xmax_label = QLabel("XMax:")
-        self.xmax_input = QLineEdit("-3.625947")
+        self.xmax_input = QLineEdit("12.722168")
 
         self.ymax_label = QLabel("YMax:")
-        self.ymax_input = QLineEdit("40.428136")
+        self.ymax_input = QLineEdit("45.566015")
 
         self.name_file_label = QLabel("File output name")
         self.name_file_input = QLineEdit("esri_layer_query")
