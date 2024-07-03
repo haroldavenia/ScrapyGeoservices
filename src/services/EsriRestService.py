@@ -71,4 +71,11 @@ class EsriRestService:
 
     @property
     def to_json(self):
-        return self.__query_result.to_json
+        if self.__query_result.features is not None and len(self.__query_result.features) > 0:
+            try:
+                return self.__query_result.to_json
+            except TypeError as e:
+                raise ValueError("Failed to convert query result to JSON.") from e
+        else:
+            raise ValueError("Query result has not data to save.")
+

@@ -1,9 +1,9 @@
 venv/
+dist/
+build/
 src/utils/LOG_*.log
 
 __pychache__/
 *.py[cod]
 
 .pytest_cache/
-
-logs.txt
