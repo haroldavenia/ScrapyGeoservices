@@ -44,3 +44,10 @@ Para compilar el proyecto a un ejecutable (.exe), utiliza PyInstaller con el arc
    pip install arcgis
    pip install pyinstaller
    ```
+
+### Solvertar error win32ctypes.pywin32.pywintypes.error: (225, 'LoadLibraryExW', 'Operation did not complete successfully because the file contains a virus or potentially unwanted software.')
+```sh
+  Start -> Settings -> Privacy & Security -> Virus & threat protection
+  manage settings -> exclusions -> add or remove exclusions
+  add your project folder
+```
