@@ -1,3 +1,6 @@
+import os
+import sys
+
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget, QComboBox, QStackedWidget, QMainWindow)
 from src.views.MainEsriWindow import MainEsriWindow
@@ -11,7 +14,17 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.__controller = None
         self.setWindowTitle("PyExtractGeoServices")
-        self.setWindowIcon(QIcon('icon/py_extract_geo.ico'))
+
+        # Verifica si el icono existe
+        if hasattr(sys, '_MEIPASS'):
+            icon_path = os.path.join(sys._MEIPASS, 'py_extract_geo.ico')
+        else:
+            icon_path = os.path.abspath('icon/py_extract_geo.ico')
+
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+        else:
+            print(f"Icon not found: {icon_path}")
 
         self.service_type_label = QLabel("Service Type:")
         self.service_type_input = QComboBox()

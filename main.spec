@@ -6,9 +6,9 @@ block_cipher = None
 
 a = Analysis(
     ['.\main.py'],
-    pathex=['C:\\Users\\harol\\PycharmProjects\\ScrapyGeoservices'],
+    pathex=['.'],
     binaries=[],
-    datas=[],
+    datas=[('icon/py_extract_geo.ico', '.')],
     hiddenimports=['arcgis.gis._impl.__portalpy'],
     hookspath=['./hooks'],
     runtime_hooks=[],
@@ -16,6 +16,7 @@ a = Analysis(
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
+    noarchive=False
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
