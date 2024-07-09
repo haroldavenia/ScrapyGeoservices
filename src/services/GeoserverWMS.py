@@ -4,6 +4,8 @@ import json
 import pandas as pd
 from owslib.wfs import WebFeatureService
 from src.utils.Utils import read_previous_json, read_features_from_json, compare_features
+from requests.exceptions import RequestException
+from owslib.util import ServiceException
 
 
 class GeoserverWMS:
@@ -22,16 +24,15 @@ class GeoserverWMS:
         wfs = WebFeatureService(self.__layer_url, version='2.0.0')
 
         while True:
-            async with self.__lock:
+            try:
                 response = await asyncio.to_thread(
                     wfs.getfeature,
                     typename=type_name,
-                    bbox=bbox,
+                    **({'bbox': bbox} if bbox is not None else {}),
                     outputFormat='application/json',
                     maxfeatures=self.__max_record_count,
                     startindex=start_index
                 )
-
                 result = json.loads(response.read().decode('utf-8'))
                 features = result['features']
 
@@ -45,6 +46,18 @@ class GeoserverWMS:
                     self.__query_result = result
                 else:
                     self.__query_result['features'].extend(result['features'])
+
+                if len(features) < self.__max_record_count:
+                    break
+
+            except json.JSONDecodeError as e:
+                raise ValueError("Failed to convert query result to JSON.") from e
+            except (RequestException, ServiceException) as e:
+                raise RuntimeError("Failed to retrieve data from the service.") from e
+            except Exception as e:
+                raise RuntimeError("An unexpected error occurred.") from e
+
+        return self.__features
 
     def get_features_updates(self, name_file):
         previous_file_path = read_previous_json(name_file)

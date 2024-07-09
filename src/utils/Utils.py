@@ -117,28 +117,34 @@ def write_JSON_file(json_data, name_file):
 def compare_features(df_old, df_new, attr_id):
     if not set(df_old.columns).issubset(df_new.columns):
         print("Las columnas no coinciden entre df_old y df_new")
-        return None, None, None, pd.DataFrame({'Columns in df_old': list(set(df_old.columns) - set(df_new.columns)),
-                                               'Columns in df_new': list(
-                                                   set(df_new.columns) - set(df_old.columns))})
+        return None, None, None, pd.DataFrame({
+            'Columns in df_old': list(set(df_old.columns) - set(df_new.columns)),
+            'Columns in df_new': list(set(df_new.columns) - set(df_old.columns))
+        })
 
-    df_old.set_index(attr_id, inplace=True)
-    df_new.set_index(attr_id, inplace=True)
+    # Eliminar duplicados y resetear el índice
+    df_old = df_old.drop_duplicates(subset=[attr_id]).set_index(attr_id)
+    df_new = df_new.drop_duplicates(subset=[attr_id]).set_index(attr_id)
 
     # Fill NaN or None values with a specific value for comparison
-    df_old.fillna(value=np.nan, inplace=True)
-    df_new.fillna(value=np.nan, inplace=True)
+    df_old_filled = df_old.fillna(value=np.nan).copy()
+    df_new_filled = df_new.fillna(value=np.nan).copy()
 
     # Convert NaN values to a string or specific value
-    df_old.replace(np.nan, 'MISSING', inplace=True)
-    df_new.replace(np.nan, 'MISSING', inplace=True)
+    df_old_filled.replace(np.nan, 'MISSING', inplace=True)
+    df_new_filled.replace(np.nan, 'MISSING', inplace=True)
 
-    added_features = df_new[~df_new.index.isin(df_old.index)].copy()
-    removed_features = df_old[~df_old.index.isin(df_new.index)].copy()
-    common_columns = df_old.columns.intersection(df_new.columns)
+    added_features = df_new_filled[~df_new_filled.index.isin(df_old_filled.index)].copy()
+    removed_features = df_old_filled[~df_old_filled.index.isin(df_new_filled.index)].copy()
+    common_columns = df_old_filled.columns.intersection(df_new_filled.columns)
 
-    # Perform the comparison with the replaced values
-    modified_indices = df_new[df_new[common_columns].ne(df_old[common_columns]).any(axis=1)].index
-    modified_features = df_new[df_new.index.isin(modified_indices) & df_new.index.isin(df_old.index)].copy()
+    # Ensure that both DataFrames are aligned on the index before comparison
+    df_old_aligned = df_old_filled.reindex(df_new_filled.index)
+    df_new_aligned = df_new_filled.reindex(df_old_filled.index)
+
+    # Perform the comparison with the aligned DataFrames
+    modified_indices = df_new_aligned[df_new_aligned[common_columns].ne(df_old_aligned[common_columns]).any(axis=1)].index
+    modified_features = df_new_filled.loc[modified_indices.intersection(df_old_filled.index)].copy()
     modified_features = modified_features[~modified_features.index.isin(added_features.index)]
 
     return added_features, removed_features, modified_features, None

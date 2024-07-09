@@ -36,7 +36,7 @@ class MainGeoserverWindow(QMainWindow):
         self.src_label = QLabel("SRC name:")
         self.src_input = QLineEdit("urn:ogc:def:crs:EPSG::4326")
 
-        self.name_file_label = QLabel("SRC name:")
+        self.name_file_label = QLabel("Layer name:")
         self.name_file_input = QLineEdit("wfs_emision")
 
         self.max_record_label = QLabel("Max Record")
@@ -98,7 +98,7 @@ class MainGeoserverWindow(QMainWindow):
             show_message_box(title="BBOX Error", message=messageBbox, icon=QMessageBox.Critical)
 
         layer_url = self.layer_url_input.text()
-        bbox = (bbox[0], bbox[1], bbox[2], bbox[3], self.src_input.text())
+        bbox = (bbox[0], bbox[1], bbox[2], bbox[3], self.src_input.text()) if bbox and len(bbox) > 0 else None
         name_file = self.name_file_input.text()
         type_name = self.type_name_input.text()
         attr_id = self.attr_id_input.text()
