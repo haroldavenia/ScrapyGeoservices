@@ -1,3 +1,4 @@
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QWidget, QComboBox, QStackedWidget, QMainWindow)
 from src.views.MainEsriWindow import MainEsriWindow
 from src.views.MainGeoserverWindow import MainGeoserverWindow
@@ -10,6 +11,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.__controller = None
         self.setWindowTitle("PyExtractGeoServices")
+        self.setWindowIcon(QIcon('icon/py_extract_geo.ico'))
 
         self.service_type_label = QLabel("Service Type:")
         self.service_type_input = QComboBox()

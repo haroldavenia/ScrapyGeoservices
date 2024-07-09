@@ -23,7 +23,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='main',
+    name='PyExtractGeo',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -31,6 +31,7 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
+    icon='icon/py_extract_geo.ico'
 )
 coll = COLLECT(
     exe,
@@ -40,5 +41,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='main',
+    name='PyExtractGeoservices',
 )
